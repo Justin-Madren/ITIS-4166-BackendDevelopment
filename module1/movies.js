@@ -93,8 +93,10 @@ function deleteMovie(id) {
   
   if(movie !== -1){
     movies.splice(movie, 1);
+    return true;
+  }else{
+    return false;
   }
-
 }
 
 // -------------------------
