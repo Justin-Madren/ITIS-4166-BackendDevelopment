@@ -2,7 +2,9 @@
 // This module reads commands from commands.json and executes them sequentially.
 
 import fs from 'fs/promises';
-import { join } from 'path';
+import { join, resolve } from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 import { 
   resetPosts,
   createPost,
@@ -11,6 +13,9 @@ import {
   deletePost,
   listPosts
 } from './blogService.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 
 /**
@@ -110,8 +115,9 @@ export async function processCommand(cmd) {
  * If this file is executed directly,
  * read commands from commands.json and process them sequentially.
  */
-if (process.argv[1] === new URL(import.meta.url).pathname) {
-  const commandsFilePath = join(process.cwd(), 'commands.json');
+
+if (resolve(process.argv[1]) === __filename) {
+  const commandsFilePath = join(__dirname, 'commands.json');
 
   const data = await fs.readFile(commandsFilePath, 'utf-8');
   const commands = JSON.parse(data);
