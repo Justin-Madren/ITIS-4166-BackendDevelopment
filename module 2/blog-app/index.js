@@ -110,6 +110,7 @@ export async function processCommand(cmd) {
  * If this file is executed directly,
  * read commands from commands.json and process them sequentially.
  */
+if (process.argv[1] === new URL(import.meta.url).pathname) {
   const commandsFilePath = join(process.cwd(), 'commands.json');
 
   const data = await fs.readFile(commandsFilePath, 'utf-8');
@@ -118,3 +119,4 @@ export async function processCommand(cmd) {
   for (const cmd of commands) {
     await processCommand(cmd);
   }
+}
