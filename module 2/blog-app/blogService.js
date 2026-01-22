@@ -45,7 +45,7 @@ export async function createPost(title, content) {
             id: blogData.nextId,
             title,
             content,
-            timestamp: format(new Date(), 'yyyy-M-d h:m a')
+            createdAt: format(new Date(), 'yyyy-M-d h:m a')
         };
 
         blogData.posts.push(newPost);
