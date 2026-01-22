@@ -2,6 +2,7 @@
 // This module handles blog post CRUD operations
 
 import fs from 'fs/promises';
+import { format } from 'date-fns';
 import { join } from 'path';
 
 // Filepath for posts.json. Use this for reading/writing posts.
@@ -44,7 +45,7 @@ export async function createPost(title, content) {
             id: blogData.nextId,
             title,
             content,
-            timestamp: new Date().toISOString()
+            timestamp: format(new Date(), 'yyyy-M-d h:m a')
         };
 
         blogData.posts.push(newPost);
