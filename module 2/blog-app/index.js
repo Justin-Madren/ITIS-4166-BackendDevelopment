@@ -97,7 +97,7 @@ export async function processCommand(cmd) {
       // Lists all posts as an array of objects
       // Logs: "All posts: [<array of post objects>]"
       const posts = await listPosts();
-      console.log('All posts:', posts);
+      console.log('All posts: ', posts);
       break;
     }
     case 'exit': {
