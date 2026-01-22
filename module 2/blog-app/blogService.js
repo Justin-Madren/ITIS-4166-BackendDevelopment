@@ -42,10 +42,10 @@ export async function createPost(title, content) {
         const blogData = JSON.parse(data);
 
         const newPost = {
-            content,
-            timestamp: format(new Date(), 'yyyy-M-d h:m a'),
             id: blogData.nextId,
-            title
+            title,
+            content,
+            timestamp: format(new Date(), 'yyyy-M-d h:m a')
         };
 
         blogData.posts.push(newPost);
