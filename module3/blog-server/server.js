@@ -45,7 +45,7 @@ app.get('/posts/:id', async (req, res) => {
     if (post) {
       res.json(post);
     } else {
-      res.status(404).json({ error: 'Post not found' });
+      res.status(404).json({ error: `Post ${postId} not found` });
     }
   } catch (error) {
     res.status(500).json({ error: 'Failed to retrieve post' });
@@ -55,15 +55,16 @@ app.get('/posts/:id', async (req, res) => {
 app.put('/posts/:id', async (req, res) => {
   const postId = parseInt(req.params.id, 10);
   const { title, content } = req.body;
-  if (!title || !content) {
+
+  if (!title && !content) {
     return res.status(400).json({ error: 'Title and content are required' });
   }
   try {
     const updatedPost = await updatePost(postId, title, content);
     if (updatedPost) {
-      res.json(updatedPost);
+      res.json({message: `Post ${postId} updeated`});
     } else {
-      res.status(404).json({ error: 'Post not found' });
+      res.status(404).json({ error: `Post ${postId} not found` });
     }
   } catch (error) {
     res.status(500).json({ error: 'Failed to update post' });
@@ -75,9 +76,9 @@ app.delete('/posts/:id', async (req, res) => {
   try {
     const deleted = await deletePost(postId);
     if (deleted) {
-      res.json({ message: 'Post deleted successfully' });
+      res.json({ message: `Post ${postId} deleted` });
     } else {
-      res.status(404).json({ error: 'Post not found' });
+      res.status(404).json({ error: `Post ${postId} not found` });
     }
   } catch (error) {
     res.status(500).json({ error: 'Failed to delete post' });
