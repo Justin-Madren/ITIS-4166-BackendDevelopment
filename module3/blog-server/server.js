@@ -95,12 +95,12 @@ app.get('/posts', async (req, res) => {
 
 // This is not allowing the server to run correctly because of
 // the way windows 11 doses file paths.
-// if (process.argv[1] === new URL(import.meta.url).pathname) {
-//   app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
-// }
+if (process.argv[1] === new URL(import.meta.url).pathname) {
+  app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+}
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server is running on port ${PORT}`);
+// });
 
 export default app;
