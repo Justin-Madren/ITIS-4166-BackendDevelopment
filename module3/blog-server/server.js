@@ -57,12 +57,12 @@ app.put('/posts/:id', async (req, res) => {
   const { title, content } = req.body;
 
   if (!title && !content) {
-    return res.status(400).json({ error: 'Title and content are required' });
+    return res.status(400).json({ error: 'Either title or content is required' });
   }
   try {
     const updatedPost = await updatePost(postId, title, content);
     if (updatedPost) {
-      res.json({message: `Post ${postId} updeated`});
+      res.json({message: `Post ${postId} updated`});
     } else {
       res.status(404).json({ error: `Post ${postId} not found` });
     }
