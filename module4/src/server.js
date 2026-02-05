@@ -1,7 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
 import postRoutes from './routes/postRoutes.js';
-import { use } from 'react';
 
 
 const app = express();
