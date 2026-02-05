@@ -26,10 +26,10 @@ export function update(id, postData){
     if(!post){
         return undefined;
     }
-    if(updatedData.title){
+    if(postData.title !== undefined){
         post.title = postData.title;
     }
-    if(postData.content){
+    if(postData.content !== undefined){
         post.content = postData.content;
     }
     return post;
