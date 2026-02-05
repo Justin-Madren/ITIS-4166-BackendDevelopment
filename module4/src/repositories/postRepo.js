@@ -15,7 +15,7 @@ export function create(postData){
         id: getNextId(),
         title: postData.title,
         content: postData.content,
-        createAt: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
     };
     posts.push(newPost);
     return newPost;
@@ -29,7 +29,7 @@ export function update(id, postData){
     if(postData.title !== undefined){
         post.title = postData.title;
     }
-    if(postData.content !== undefined){
+    if(postData.content !== undefined && postData.content !== ""){
         post.content = postData.content;
     }
     return post;
