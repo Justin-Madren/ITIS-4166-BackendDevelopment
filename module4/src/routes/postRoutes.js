@@ -7,13 +7,23 @@ import {
     deletePostHandler 
 } from '../controllers/postController.js';
 
+import { 
+    validatedId, 
+    validateCreatePost, 
+    validateUpdatePost,
+    validatePostQuery
+ } from '../middleware/postValidatiors.js';
+
+
 const router = express.Router();
 
-router.get('/', getAllPostsHandler);
-router.get('/:id', getPostByIdHandler);
-router.post('/', createPostHandler);
-router.put('/:id', updatePostHandler);
-router.delete('/:id', deletePostHandler);
+router.get('/', validatePostQuery, getAllPostsHandler);
+router.get('/:id', validatedId, getPostByIdHandler);
+router.post('/', validateCreatePost, createPostHandler);
+router.put('/:id',validatedId, validateUpdatePost, updatePostHandler);
+router.delete('/:id',validatedId, deletePostHandler);
+
+
 
 
 export default router;

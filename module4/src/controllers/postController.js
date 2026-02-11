@@ -2,7 +2,22 @@ import { getAllPosts, getPostById, createPost, updatePost, deletePost } from "..
 
 
 export function getAllPostsHandler(req, res) {
-    let posts = getAllPosts();
+    const {
+        title = '',
+        sortBy = 'id',
+        order = 'asc',
+        offset = 0,
+        limit = 5
+    } = req.query;
+
+    const options = {
+        title,
+        sortBy,
+        order,
+        offset: parseInt(offset),
+        limit: parseInt(limit)
+    }
+    let posts = getAllPosts(options);
     res.status(200).json(posts);
 } 
 
@@ -21,6 +36,18 @@ export function createPostHandler(req, res){
 export function updatePostHandler(req, res){
     const id = parseInt(req.params.id);
     const { title, content } = req.body;
+
+    if (title === undefined && content === undefined) {
+        return res.status(400).json({
+            error: 'At least one field (title or content) is required'
+        });
+    }
+
+    const existing = getPostById(id);
+    if (!existing) {
+        return res.status(404).json({ error: 'Post not found' });
+    }
+
     const updatedPost = updatePost(id, { title, content });
     res.status(200).json(updatedPost);
 }

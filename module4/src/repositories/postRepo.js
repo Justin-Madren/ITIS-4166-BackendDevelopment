@@ -1,8 +1,26 @@
 import { posts, getNextId } from '../db/posts.js';
 
 
-export function getAll(){
-    return posts;
+export function getAll({title, sortBy, order, offset, limit}){
+    let results = [...posts];
+    if(title){
+        results = results.filter((post) => post.title.toLowerCase().includes(title.toLowerCase()));
+    }
+
+    results.sort((a, b)=> {
+        if(a[sortBy] < b[sortBy]){
+            return order === 'asc' ? -1 : 1;
+        }
+        if(a[sortBy] > b[sortBy]){
+            return order === 'asc' ? 1 : -1;
+        }
+        return 0;
+    });
+
+    const endIndex = offset + limit;
+    results = results.slice(offset, endIndex);
+    
+    return results;
 }
 
 export function getById(id){
@@ -23,15 +41,9 @@ export function create(postData){
 
 export function update(id, postData){
     const post = posts.find(p => p.id === id);
-    if(!post){
-        return undefined;
-    }
-    if(postData.title !== undefined){
-        post.title = postData.title;
-    }
-    if(postData.content !== undefined && postData.content !== ""){
-        post.content = postData.content;
-    }
+    if(!post) return undefined;
+    if(postData.title) post.title = postData.title;
+    if(postData.content) post.content = postData.content;
     return post;
 }
 

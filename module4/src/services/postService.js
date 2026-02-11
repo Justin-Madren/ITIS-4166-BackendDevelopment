@@ -1,8 +1,8 @@
 import { getAll,getById,create,update,remove } from "../repositories/postRepo.js";
 
 
-export function getAllPosts(){
-    return getAll();
+export function getAllPosts(options){
+    return getAll(options);
 }
 
 export function getPostById(id){
