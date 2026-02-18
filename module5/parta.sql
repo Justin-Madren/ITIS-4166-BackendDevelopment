@@ -1,4 +1,4 @@
---Create ENUM user_roles
+-- Create ENUM user_roles
 CREATE TYPE user_roles AS ENUM ('admin', 'member');
 
 -- Create users table
@@ -12,23 +12,22 @@ CREATE TABLE IF NOT EXISTS users (
 --- Create posts table
 CREATE TABLE IF NOT EXISTS posts (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id INT NOT NULL,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
-    created_at TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP
 );
 
 -- Create comments table
 CREATE TABLE IF NOT EXISTS comments (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
+    post_id INT NOT NULL REFERENCES posts(id),
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    parent_comment_id INT REFERENCES comments(id),
     content TEXT NOT NULL,
-    created_at TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES posts(id),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    created_at TIMESTAMP
 );
+    
 
 -- Create categories table
 CREATE TABLE IF NOT EXISTS categories (
@@ -38,12 +37,11 @@ CREATE TABLE IF NOT EXISTS categories (
 
 -- Create post_categories table
 CREATE TABLE IF NOT EXISTS post_categories (
-    category_id INT NOT NULL,
-    post_id INT NOT NULL,
-    PRIMARY KEY (category_id, post_id),
-    FOREIGN KEY (category_id) REFERENCES categories(id),
-    FOREIGN KEY (post_id) REFERENCES posts(id)
+    category_id INT NOT NULL REFERENCES categories(id) ON DELETE CASCADE,
+    post_id INT NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+    PRIMARY KEY (category_id, post_id)
 );
+
 
 -- Add data to the users table
 INSERT INTO users (name, email, role) VALUES
