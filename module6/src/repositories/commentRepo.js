@@ -44,7 +44,7 @@ export async function create(data) {
   // Check if post exists
   const postCheck = await pool.query('SELECT 1 FROM posts WHERE id = $1', [data.postId]);
   if (postCheck.rowCount === 0) {
-    const error = new Error('Post not found');
+    const error = new Error(`id ${data.postId} does not exist`);
     error.status = 400;
     throw error;
   }
