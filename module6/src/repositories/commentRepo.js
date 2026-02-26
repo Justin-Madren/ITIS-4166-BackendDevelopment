@@ -1,63 +1,71 @@
 import { comments, getNextId } from '../db/comments.js';
-import { postExists } from '../repositories/postRepo.js';
+import pool from '../db/db.js';
 
-export function getAll({ postId, search, sortBy, order, offset, limit }) {
-  let results = [...comments];
-  if (postId) {
-    results = results.filter((comment) => comment.postId === postId);
-  }
-
-  if (search) {
-    results = results.filter((comment) =>
-      comment.content.toLowerCase().includes(search.toLowerCase()),
+export async function getAll({ postId, search, sortBy, order, offset, limit }) {
+  let text = `SELECT id, post_Id, content, created_at as "createdAT" FROM comments`;
+  const values = [];
+  const conditions = [];
+  if(search){
+    values.push(`%${search}%`);
+    conditions.push(
+      `(content ILIKE $${values.length})`,
     );
   }
-
-  results.sort((a, b) => {
-    if (a[sortBy] < b[sortBy]) return order === 'asc' ? -1 : 1;
-    if (a[sortBy] > b[sortBy]) return order === 'asc' ? 1 : -1;
-    return 0;
-  });
-
-  const endIndex = offset + limit;
-  results = results.slice(offset, endIndex);
-  return results;
-}
-
-export function getById(id) {
-  let comment = comments.find((comment) => comment.id === id);
-  return comment;
-}
-
-export function create(data) {
-  if (postExists(data.postId)) {
-    const newComment = {
-      id: getNextId(),
-      postId: data.postId,
-      content: data.content,
-      createdAt: new Date().toISOString(),
-    };
-    comments.push(newComment);
-    return newComment;
-  } else {
-    const error = new Error(
-      `Cannot create comment: referenced post with id ${data.postId} does not exist`,
-    );
-    error.status = 400;
-    throw error;
+  if (conditions.length > 0) {
+    text += ` WHERE ${conditions.join(' AND ')}`;
   }
+
+   if(sortBy === 'createdAt') sortBy = 'created_at';
+
+   text += ` ORDER BY ${sortBy} ${order}`;
+
+    values.push(limit);
+    values.push(offset);
+    text += ` LIMIT $${values.length -1} OFFSET $${values.length}`;
+
+  const result = await pool.query(text, values);
+  return result.rows;
 }
 
-export function update(id, updatedData) {
-  const comment = comments.find((c) => c.id === id);
-  if (!comment) return undefined;
-  comment.content = updatedData.content;
-  return comment;
+export async function getById(id) {
+  const text = 'SELECT id, content, created_at as "createdAT" FROM comments WHERE id = $1'
+  const values = [id];
+  const result = await pool.query(text, values);
+  return result.rows[0];
 }
 
-export function remove(id) {
-  const index = comments.findIndex((comment) => comment.id === id);
-  if (index === -1) return false;
-  comments.splice(index, 1);
-  return true;
+export async function create(data) {
+  const text = `INSERT INTO comments (post_id, content)
+                VALUES ($1, $2)
+                RETURNING
+                id,
+                post_id,
+                content,
+                created_at AS "createdAT"`;
+  const values = [data.postId, data.content];
+  const result = await pool.query(text, values);
+  return result.rows[0];
+}
+
+export async function update(id, updatedData) {
+  const text = `UPDATE comments
+                SET 
+                  content = COALESCE($1, content)
+                WHERE 
+                  id = $2
+                RETURNING
+                id,
+                post_id,
+                content,
+                created_at AS "createdAT"`;
+  const values = [updatedData.content, id];
+  const result = await pool.query(text, values);
+  return result.rows[0];
+}
+
+export async function remove(id) {
+  const text = `DELETE FROM comments WHERE id = $1`;
+  const values = [id];
+  const result = await pool.query(text, values);
+  return result.rowCount > 0;
 }
