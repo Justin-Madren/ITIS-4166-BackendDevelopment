@@ -2,7 +2,7 @@ import { posts, getNextId } from '../db/posts.js';
 import pool from '../db/db.js';
 
 export async function getAll({ search, sortBy, order, offset, limit }) {
-  let text = `SELECT id, title, content, created_at as "createdAT" FROM posts`;
+  let text = `SELECT id, title, content, created_at as "createdAt" FROM posts`;
   const values = [];
   const conditions = [];
   if(search){
@@ -29,7 +29,7 @@ export async function getAll({ search, sortBy, order, offset, limit }) {
 }
 
 export async function getById(id) {
-  const text = 'SELECT id, title, content, created_at as "createdAT" FROM posts WHERE id = $1'
+  const text = 'SELECT id, title, content, created_at as "createdAt" FROM posts WHERE id = $1';
   const values = [id];
   const result = await pool.query(text, values);
   return result.rows[0];
@@ -42,7 +42,7 @@ export async function create(postData) {
                 id,
                 title,
                 content,
-                created_at AS "createdAT"`;
+                created_at AS "createdAt"`;
   const values =[postData.title, postData.content];
   const result = await pool.query(text, values);
   return result.rows[0];
@@ -59,7 +59,7 @@ export async function update(id, updatedData) {
                 id,
                 title,
                 content,
-                created_at AS "createdAT"`;
+                created_at AS "createdAt"`;
   const values = [updatedData.title, updatedData.content, id];
   const result = await pool.query(text, values);
   return result.rows[0];

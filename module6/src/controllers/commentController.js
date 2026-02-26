@@ -24,8 +24,13 @@ export async function getAllCommentsHandler(req, res) {
     offset: parseInt(offset),
     limit: parseInt(limit),
   };
-  const comments = await getAllComments(options);
-  res.status(200).json(comments);
+  const result = await getAllComments(options);
+  // If only comments array is expected, return result.comments; if object, return result
+  if (Array.isArray(result.comments)) {
+    res.status(200).json(result.comments);
+  } else {
+    res.status(200).json(result);
+  }
 }
 
 export async function getCommentByIdHandler(req, res) {
