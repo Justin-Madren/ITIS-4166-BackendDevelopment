@@ -1,0 +1,30 @@
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "A smiple blog API ",
+  "main": "index.js",
+  "scripts": {
+    "dev": "node --env-file=.env --watch src/server.js",
+    "seed": "node prisma/seed.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "devDependencies": {
+    "@eslint/js": "^9.29.0",
+    "dotenv": "^17.3.1",
+    "eslint": "^9.29.0",
+    "eslint-config-prettier": "^10.1.5",
+    "globals": "^16.2.0",
+    "prettier": "^3.6.1",
+    "prisma": "^7.5.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
+    "express": "^5.1.0",
+    "express-validator": "^7.2.1",
+    "morgan": "^1.10.1"
+  }
+}
