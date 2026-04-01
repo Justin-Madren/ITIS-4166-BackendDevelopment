@@ -1,0 +1,474 @@
+openapi: 3.0.3
+
+info:
+  title: Blog API
+  version: 1.0.0
+  description: API documentation for the Blog API
+
+servers:
+  - url: http://localhost:8080/api
+
+
+tags:
+  - name: Posts
+    description: Operations related to blog posts
+  - name: Auth
+    description: User authentication operations
+
+paths:
+  /posts:
+    get:
+      tags:
+        - Posts
+      summary: Get all posts
+      description: Retrieve a list of all blog posts with optional search, sorting, and pagination
+      parameters:
+        - $ref: '#/components/parameters/SearchQuery'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: A list of blogs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                 $ref: '#/components/schemas/Post'
+    post:
+      security:
+        - bearerAuth: []
+      tags:
+        - Posts
+      summary: create a new post
+      description: Create a new blog post
+      requestBody:
+        description: Post object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Post'
+      responses:
+        '201':
+          description: Post created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/InvalidPostInput'
+        '401':
+          $ref: '#/components/responses/Unauthorized' 
+  /posts/{id}:
+    get:
+      tags:
+        - Posts
+      summary: Get a post by ID
+      description: Retrieve a single blog post by its ID
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: A single blog post
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/InvalidId'
+    put:
+      security:
+        - bearerAuth: []
+      tags:
+        - Posts
+      summary: Update a post
+      description: Update an existing blog post (title and/or content)
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        description: Post object with fields to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  example: "Updated Post Title"
+                content:
+                  type: string
+                  example: "Updated content for the post."
+              minProperties: 1
+      responses:
+        '200':
+          description: Post updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+        '400':
+          $ref: '#/components/responses/InvalidPostUpdate'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      security:
+        - bearerAuth: []
+      tags:
+        - Posts
+      summary: Delete a post
+      description: Delete a blog post by its ID
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Post deleted successfully
+        '400':
+          $ref: '#/components/responses/InvalidId'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: Authenticate user
+      description: Authenticate a user and return an access token
+      requestBody:
+        description: User Login credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: 
+                      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        '400':
+          $ref: '#/components/responses/InvalidUserInput'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Invalid credentials"
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: Register a new user
+      description: Create a new user account with email and password
+      requestBody:
+        description: User registration credentials
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthCredentials'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/InvalidUserInput'
+        '409':
+          $ref: '#/components/responses/DuplicateEmail'
+
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        title:
+          type: string
+          example: "My First Post"
+        content:
+          type: string
+          example: "This is the content of my first post."
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2024-01-01T12:00:00Z"
+        authorId:
+          type: integer
+          readOnly: true
+          example: 1
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          example: 1
+        email:
+          type: string
+          example: "user@email.com"
+        createdAt:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2024-01-01T12:00:00Z"
+
+    AuthCredentials:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      example:
+        email: "user@email.com"
+        password: "password123"
+      
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: Resource ID
+      schema:
+        type: integer
+        example: 1
+
+    SearchQuery:
+      name: search
+      in: query
+      required: false
+      description: Filter posts by matching title or content (case-insensitive)
+      schema:
+        type: string
+        example: "typescript"
+
+    SortBy:
+      name: sortBy
+      in: query
+      required: false
+      description: Field to sort by (e.g., createdAt, title)
+      schema:
+        type: string
+        enum: ["createdAt", "title"]
+        example: "createdAt"
+
+    SortOrder:
+      name: order
+      in: query
+      required: false
+      description: Sort order (ascending or descending)
+      schema:
+        type: string
+        enum: ["asc", "desc"]
+        example: "desc"
+
+    Offset:
+      name: offset
+      in: query
+      required: false
+      description: Number of posts to skip (used for pagination)
+      schema:
+        type: integer
+        minimum: 0
+        example: 0
+
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Number of posts to return per page
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: "Resource 1 not found"
+        
+    InvalidId:
+      description: Invalid ID supplied
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              error: ["ID must be a positive integer"]
+
+    InvalidPostInput:
+      description: Bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              - 'Title mut be at least 3 charaters long'
+
+    InvalidPostUpdate:
+      description: Bad request due to invalid update data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              errors:
+                - 'Title must be at least 3 characters long'
+                - 'Content cannot be empty'
+
+    Unauthorized:
+      description: Client is not authenticated
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: "Not authenticated please provide a valid token"
+
+    Forbidden:
+      description: Client does not have permission to perform this action
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: "You do not have permission to perform this action"
+
+    DuplicateEmail:
+      description: Email already exists
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+            example:
+              error: "Email already exists"
+
+    InvalidUserInput:
+      description: Bad request due to invalid data
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              errors:
+                type: array
+                items:
+                  type: string
+            example:
+              errors: 
+                - 'Email is required'
+                - 'Password is required'
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
